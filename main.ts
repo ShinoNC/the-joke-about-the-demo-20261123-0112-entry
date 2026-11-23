@@ -32,4 +32,17 @@ const JOKE =
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
 mkdirSync(outDir, { recursive: true });
+
+// Self-check the gate before writing: the entry must be 1–280 Unicode
+// code points and not only white space. Counting code points, not UTF-16
+// units or bytes, so an astral character counts once, as the gate counts
+// it. A joke that fails its own gate is refused loudly instead of being
+// written and graded invalid.
+const codePoints = [...JOKE].length;
+if (codePoints < 1 || codePoints > 280 || JOKE.trim() === "") {
+  console.error(
+    `entry rejected: ${codePoints} code points, gate needs 1-280 non-blank`,
+  );
+  process.exit(1);
+}
 writeFileSync(join(outDir, "entry.txt"), JOKE, "utf8");
